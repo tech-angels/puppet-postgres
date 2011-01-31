@@ -12,6 +12,13 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import "classes/*.pp"
-import "definitions/*.pp"
+class postgres {
+	package { [postgresql, ruby-postgres, postgresql-server]: ensure => installed }
 
+    service { postgresql:
+        ensure => running,
+        enable => true,
+        hasstatus => true,
+        subscribe => [Package[postgresql-server], Package[postgresql]]
+    }
+}
