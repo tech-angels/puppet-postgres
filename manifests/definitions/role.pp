@@ -29,9 +29,13 @@ Parameters:
   $createdb:
     true to allow role to create databases.
     false to not allow.
+  $login:
+    true to allow role to login.
+    false to not allow.
 
 Actions:
   * create or remove role
+  * allow or disallow createdb or login
 
 Sample usage:
 postgres::role {
@@ -43,7 +47,8 @@ postgres::role {
 define postgres::role(
   $ensure,
   $password=false,
-  $createdb=false
+  $createdb=false,
+  $login=false
 ) {
     $passtext = $password ? {
         false => "",
@@ -63,20 +68,41 @@ define postgres::role(
                 exec { "Give createdb to $name postgres role":
                   command => "/usr/bin/psql -c \"ALTER ROLE $name WITH CREATEDB\"",
                   user => "postgres",
-                  unless => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$"
+                  unless => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$";
                 }
               }
               false: {
                  exec { "Remove createdb from $name postgres role":
                   command => "/usr/bin/psql -c \"ALTER ROLE $name WITH NOCREATEDB\"",
                   user => "postgres",
-                  onlyif => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$"
+                  onlyif => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$";
                 }
               }
               default: {
                 fail "Invalid 'createdb' value '$createdb' for postgres::role"
               }
             }
+            # Give or remove login privilege
+            case $login {
+              true: {
+                exec { "Give login to $name postgres role":
+                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH LOGIN\"",
+                  user => "postgres",
+                  unless => "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                }
+              }
+              false: {
+                 exec { "Remove login from $name postgres role":
+                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH NOLOGIN\"",
+                  user => "postgres",
+                  onlyif => "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                }
+              }
+              default: {
+                fail "Invalid 'createdb' value '$createdb' for postgres::role"
+              }
+            }
+ 
         }
         absent:  {
             exec { "Remove $name postgres role":
