@@ -12,7 +12,39 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-define postgres::role($ensure, $password = false) {
+/*
+
+Define: postgres::role
+
+This resource manages roles in PostgreSQL.
+
+Parameters:
+  $name:
+    Name of role.
+  $ensure:
+    present to create role.
+    absent to remove role.
+  $password:
+    Password of role.
+  $createdb:
+    true to allow role to create databases.
+    false to not allow.
+
+Actions:
+  * create or remove role
+
+Sample usage:
+postgres::role {
+  'dev_usr':
+    password	=> 'DR7468b',
+    createdb	=> true;
+}
+*/
+define postgres::role(
+  $ensure,
+  $password=false,
+  $createdb=false
+) {
     $passtext = $password ? {
         false => "",
         default => "PASSWORD '$password'"
@@ -24,6 +56,26 @@ define postgres::role($ensure, $password = false) {
                 command => "/usr/bin/psql -c \"CREATE ROLE $name $passtext\"",
                 user => "postgres",
                 unless => "/usr/bin/psql -c '\\du' | grep '^  *$name  *|'"
+            }
+            # Give or remove createdb privilege
+            case $createdb {
+              true: {
+                exec { "Give createdb to $name postgres role":
+                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH CREATEDB\"",
+                  user => "postgres",
+                  unless => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$"
+                }
+              }
+              false: {
+                 exec { "Remove createdb from $name postgres role":
+                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH NOCREATEDB\"",
+                  user => "postgres",
+                  onlyif => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$"
+                }
+              }
+              default: {
+                fail "Invalid 'createdb' value '$createdb' for postgres::role"
+              }
             }
         }
         absent:  {

@@ -1,0 +1,57 @@
+# File managed by Puppet
+
+#------------------------------------------------------------------------------
+# FILE LOCATIONS
+#------------------------------------------------------------------------------
+
+data_directory = '/var/lib/postgresql/8.3/main'
+hba_file = '/etc/postgresql/8.3/main/pg_hba.conf'
+ident_file = '/etc/postgresql/8.3/main/pg_ident.conf'
+external_pid_file = '/var/run/postgresql/8.3-main.pid'
+
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+
+# - Connection Settings -
+listen_addresses = <%= listen_addresses.collect{|address| "'" + address + "'"}.join(',') %>
+port = <%= port %>
+max_connections = <%= max_connections %>
+unix_socket_directory = '/var/run/postgresql'
+
+# - Security and Authentication -
+ssl = true
+
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+
+# - Memory -
+shared_buffers = 24MB
+
+# - Free Space Map -
+max_fsm_pages = 153600
+
+#------------------------------------------------------------------------------
+# LOG
+#------------------------------------------------------------------------------
+
+log_line_prefix = '%t '
+
+#------------------------------------------------------------------------------
+# CLIENT CONNECTION DEFAULTS
+#------------------------------------------------------------------------------
+
+# - Locale and Formatting -
+datestyle = 'iso, mdy'
+
+# These settings are initialized by initdb, but they can be changed.
+lc_messages = 'C'			# locale for system error message
+					# strings
+lc_monetary = 'C'			# locale for monetary formatting
+lc_numeric = 'C'			# locale for number formatting
+lc_time = 'C'				# locale for time formatting
+
+# default configuration for text search
+default_text_search_config = 'pg_catalog.english'
+
