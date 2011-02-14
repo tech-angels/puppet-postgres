@@ -10,6 +10,8 @@ Parameters:
     Database to access.
   $user:
     Username to allow.
+  $version:
+    Version of postgresql to install into. (exemple: '8.3', '8.4' ...)
   $auth_method:
     Authentication method.
   $auth_options:
@@ -30,15 +32,17 @@ postgres::hba::local {
 define postgres::hba::local(
   $database,
   $user,
+  $version='8.3',
   $auth_method,
   $auth_options=[]
 ) {
    common::concatfilepart {
     $name:
-      file	=> '/etc/postgresql/8.3/main/pg_hba.conf',
+      require	=> Package['postgresql'],
+      file	=> "/etc/postgresql/${version}/main/pg_hba.conf",
       content	=> template('postgresql/pg_hba.conf.local.erb'),
       manage	=> true,
-      notify	=> Service['postgres'];
+      notify	=> Service['postgresql'];
   }  
 }
 
@@ -56,6 +60,8 @@ Parameters:
     IP in the form IP/suffix. Exemple: 10.1.1.0/24.
   $user:
     Username to allow.
+  $version:
+    Version of postgresql to install into. (exemple: '8.3', '8.4' ...)
   $auth_method:
     Authentication method.
   $auth_options:
@@ -77,15 +83,17 @@ postgres::hba::host {
 define postgres::hba::host(
   $database,
   $user,
+  $version='8.3',
   $ip,
   $auth_method,
   $auth_options=[]
 ) {
    common::concatfilepart {
     $name:
-      file	=> '/etc/postgresql/8.3/main/pg_hba.conf',
+      require	=> Package['postgresql'],
+      file	=> "/etc/postgresql/${version}//main/pg_hba.conf",
       content	=> template('postgresql/pg_hba.conf.host.erb'),
       manage	=> true,
-      notify	=> Service['postgres'];
+      notify	=> Service['postgresql'];
   }  
 }

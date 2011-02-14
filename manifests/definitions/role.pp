@@ -12,6 +12,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+# Modified by Gilbert Roulot, gilbert.roulot@tech-angels.fr
+
 /*
 
 Define: postgres::role
@@ -58,24 +60,27 @@ define postgres::role(
         present: {
             # The createuser command always prompts for the password.
             exec { "Create $name postgres role":
-                command => "/usr/bin/psql -c \"CREATE ROLE $name $passtext\"",
-                user => "postgres",
-                unless => "/usr/bin/psql -c '\\du' | grep '^  *$name  *|'"
+                require	=> Package['postgresql'],
+                command	=> "/usr/bin/psql -c \"CREATE ROLE $name $passtext\"",
+                user	=> "postgres",
+                unless	=> "/usr/bin/psql -c '\\du' | grep '^  *$name  *|'"
             }
             # Give or remove createdb privilege
             case $createdb {
               true: {
                 exec { "Give createdb to $name postgres role":
-                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH CREATEDB\"",
-                  user => "postgres",
-                  unless => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$";
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH CREATEDB\"",
+                  user		=> "postgres",
+                  unless	=> "/usr/bin/psql -Atc \"SELECT rolcreatedb FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
                 }
               }
               false: {
                  exec { "Remove createdb from $name postgres role":
-                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH NOCREATEDB\"",
-                  user => "postgres",
-                  onlyif => "/usr/bin/psql -A -c '\\du' |grep '${name}' | cut -d\| -f 4 |grep ^yes\$";
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOCREATEDB\"",
+                  user		=> "postgres",
+                  onlyif	=> "/usr/bin/psql -Atc \"SELECT rolcreatedb FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
                 }
               }
               default: {
@@ -86,16 +91,18 @@ define postgres::role(
             case $login {
               true: {
                 exec { "Give login to $name postgres role":
-                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH LOGIN\"",
-                  user => "postgres",
-                  unless => "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH LOGIN\"",
+                  user		=> "postgres",
+                  unless	=> "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
                 }
               }
               false: {
                  exec { "Remove login from $name postgres role":
-                  command => "/usr/bin/psql -c \"ALTER ROLE $name WITH NOLOGIN\"",
-                  user => "postgres",
-                  onlyif => "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOLOGIN\"",
+                  user		=> "postgres",
+                  onlyif	=> "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
                 }
               }
               default: {
@@ -106,9 +113,10 @@ define postgres::role(
         }
         absent:  {
             exec { "Remove $name postgres role":
-                command => "/usr/bin/dropeuser $name",
-                user => "postgres",
-                onlyif => "/usr/bin/psql -c '\\du' | grep '$name  *|'"
+                require	=> Package['postgresql'],
+                command	=> "/usr/bin/dropeuser $name",
+                user	=> "postgres",
+                onlyif	=> "/usr/bin/psql -c '\\du' | grep '$name  *|'"
             }
         }
         default: {

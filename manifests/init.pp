@@ -1,3 +1,4 @@
+
 # Copyright (c) 2008, Luke Kanies, luke@madstop.com
 # 
 # Permission to use, copy, modify, and/or distribute this software for any
@@ -12,6 +13,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import "classes/*.pp"
+# Modified by Gilbert Roulot, gilbert.roulot@tech-angels.fr
+
 import "definitions/*.pp"
 

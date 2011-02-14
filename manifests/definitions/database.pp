@@ -12,6 +12,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+# Modified by Gilbert Roulot, gilbert.roulot@tech-angels.fr
+
 define postgres::database($ensure, $owner = false) {
     $ownerstring = $owner ? {
         false => "",
@@ -21,13 +23,15 @@ define postgres::database($ensure, $owner = false) {
     case $ensure {
         present: {
             exec { "Create $name postgres db":
-                command => "/usr/bin/createdb $ownerstring $name",
-                user => "postgres",
-                unless => "/usr/bin/psql -l | grep '$name  *|'"
+                require	=> Package['postgresql'],
+                command	=> "/usr/bin/createdb $ownerstring $name",
+                user	=> "postgres",
+                unless	=> "/usr/bin/psql -l | grep '$name  *|'"
             }
         }
         absent:  {
             exec { "Remove $name postgres db":
+                require	=> Package['postgresql'],
                 command => "/usr/bin/drop $name",
                 onlyif => "/usr/bin/psql -l | grep '$name  *|'",
                 user => "postgres"
