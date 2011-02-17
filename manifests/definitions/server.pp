@@ -129,7 +129,10 @@ define postgres::server(
       user		=> 'postgres',
       version		=> $version,
       auth_method	=> 'ident',
-      auth_options	=> ['sameuser'];
+      auth_options	=> $version ? {
+        '8.3'	=> ['sameuser'],
+        default	=> []
+      };
   }
   postgres::hba::host {
     '002 IPv4 local connections':
@@ -152,7 +155,10 @@ define postgres::server(
   file {
     "/etc/postgresql/${version}/main/postgresql.conf":
       require	=> Package['postgresql'],
-      content	=> template('postgresql/postgresql.conf.erb'),
+      content	=> $version ? {
+        '8.3'	=> template('postgresql/postgresql.conf.erb'),
+        '8.4'	=> template('postgresql/postgresql.conf.8.4.erb')
+      },
       notify	=> Service['postgresql'];
   }
 }
