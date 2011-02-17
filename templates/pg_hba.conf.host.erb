@@ -1,3 +1,18 @@
 # <%= name %>
+<%
+if ip.class == Array then
+  for i in ip do 
+    if not i =~ /\/\d{1,2}/ then
+      # Append /32 to single IP
+      i = i + "/32"
+    end
+-%>
+host	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
+<% 
+  end
+else 
+-%>
 host	<%= database %>	<%= user %>	<%= ip %>	<%= auth_method %>	<%= auth_options.join(',') %>
-
+<%
+end
+-%>

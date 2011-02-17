@@ -58,6 +58,7 @@ Parameters:
     Database to access.
   $ip:
     IP in the form IP/suffix. Exemple: 10.1.1.0/24.
+    Or array of IPs. Exemple: ['127.0.0.1/32', '10.1.1.0/24']
   $user:
     Username to allow.
   $version:
