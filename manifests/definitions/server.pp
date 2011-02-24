@@ -115,14 +115,24 @@ define postgres::server(
     }
   }
 
-  # Add default pb_hba configuration
-  common::concatfilepart {
-    '000-pg_hba.conf-header':
-      require	=> Package['postgresql'],
-      file	=> "/etc/postgresql/${version}/main/pg_hba.conf",
-      content	=> "# File managed by Puppet\n",
-      manage	=> true;
+  # creates /var/backups/postgresql directory
+  file {
+    '/var/backups/postgresql':
+      mode	=> 1777,
+      ensure	=> directory;
   }
+
+  # Create an exported resource job and fileset that the bacula director can realize on his side
+  @@bacula-dir::postgresql_backup {
+    $hostname:
+      client		=> "${hostname}-fd",
+      jobdefs		=> 'DefaultJob',
+      pool		=> 'DefaultPool',
+      bacula_schedule	=> 'DefaultSchedule',
+      ensure		=> present;
+  }
+
+  # Add default pb_hba configuration
   postgres::hba::local {
     '001 Database administrative login by UNIX sockets': 
       database		=> 'all',
@@ -139,13 +149,13 @@ define postgres::server(
       database		=> 'all',
       user		=> 'all',
       version		=> $version,
-      ip		=> '127.0.0.1/32',
+      ips		=> '127.0.0.1/32',
       auth_method	=> 'md5';
     '003 IPv6 local connections':
       database		=> 'all',
       user		=> 'all',
       version		=> $version,
-      ip		=> '::1/128',
+      ips		=> '::1/128',
       auth_method	=> 'md5';
   }
 
@@ -159,6 +169,7 @@ define postgres::server(
         '8.3'	=> template('postgresql/postgresql.conf.erb'),
         '8.4'	=> template('postgresql/postgresql.conf.8.4.erb')
       },
+      owner	=> 'postgres',
       notify	=> Service['postgresql'];
   }
 }

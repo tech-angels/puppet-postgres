@@ -1,5 +1,24 @@
 /*
 
+Define: postgres::hba::common
+
+This resource sets correct owner and permitions on the HBA file
+
+Sample usage:
+shouldn't be used directly
+*/
+define postgres::hba::common(
+$version
+) {
+  file {
+    "/etc/postgresql/${version}/main/pg_hba.conf":
+      owner	=> 'postgres',
+      mode	=> 0400;    
+  }
+}
+
+/*
+
 Define: postgres::hba::local
 
 This resource represents a host based authentication line for a local client.
@@ -36,6 +55,13 @@ define postgres::hba::local(
   $auth_method,
   $auth_options=[]
 ) {
+   if (!defined(Postgres::Hba::Common[$version])) {
+     postgres::hba::common {
+       $version:
+         version	=> $version
+     }
+   }
+  
    common::concatfilepart {
     $name:
       require	=> Package['postgresql'],
@@ -56,7 +82,7 @@ This resource represents a host based authentication line for a tcp client.
 Parameters:
   $database:
     Database to access.
-  $ip:
+  $ips:
     IP in the form IP/suffix. Exemple: 10.1.1.0/24.
     Or array of IPs. Exemple: ['127.0.0.1/32', '10.1.1.0/24']
   $user:
@@ -77,7 +103,7 @@ postgres::hba::host {
   '01 local access to dev_db for dev_usr':
     database	=> 'dev_db',
     user	=> 'dev_usr',
-    ip		=> '192.168.0.5',
+    ips		=> '192.168.0.5',
     auth_method	=> 'md5';
 }
 */
@@ -85,14 +111,21 @@ define postgres::hba::host(
   $database,
   $user,
   $version='8.3',
-  $ip,
+  $ips,
   $auth_method,
   $auth_options=[]
 ) {
+   if (!defined(Postgres::Hba::Common[$version])) {
+     postgres::hba::common {
+       $version:
+         version	=> $version
+     }
+   }
+ 
    common::concatfilepart {
     $name:
       require	=> Package['postgresql'],
-      file	=> "/etc/postgresql/${version}//main/pg_hba.conf",
+      file	=> "/etc/postgresql/${version}/main/pg_hba.conf",
       content	=> template('postgresql/pg_hba.conf.host.erb'),
       manage	=> true,
       notify	=> Service['postgresql'];
