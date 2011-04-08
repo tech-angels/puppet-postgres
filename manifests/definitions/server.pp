@@ -5,15 +5,19 @@ Define: postgres::server
 This resource installs and configure a PostgreSQL server
 
 Parameters:
-  $listen_addresses:
+  listen_addresses:
     Array of IP adresses to listen on.
-  $port:
+  port:
     TCP port to listen on.
-  $version:
+  version:
     8.3 for lenny's postgres.
     8.4 for lenny-backports' postgres
-  $max_connections:
+  max_connections:
     Maximum number of connection allowed to the server.
+  shared_buffers
+    shared buffer in MB (see PostgreSQL doc)
+  effective_cache_size 
+    effective cache size in MB (see PostgreSQL doc)
 
 Actions:
   - Install a PostgreSQL server
@@ -30,7 +34,9 @@ define postgres::server(
   $listen_addresses=['127.0.0.1'],
   $max_connections=100,
   $version='8.3',
-  $port=5432
+  $port=5432,
+  $shared_buffers=256,
+  $effective_cache_size=256
 ) {
   # Install server.
   case $version {

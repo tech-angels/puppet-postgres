@@ -43,9 +43,8 @@ ssl = true				# (change requires restart)
 
 # - Memory -
 
-shared_buffers = 24MB			# min 128kB
-					# (change requires restart)
-
+shared_buffers = <%= shared_buffers %>MB
+effective_cache_size = <%= effective_cache_size %>MB
 
 #------------------------------------------------------------------------------
 # ERROR REPORTING AND LOGGING
