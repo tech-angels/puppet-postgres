@@ -11,7 +11,8 @@ Parameters:
     TCP port to listen on.
   version:
     8.3 for lenny's postgres.
-    8.4 for lenny-backports' postgres
+    8.4 for lenny-backports' postgres or squeeze's postres.
+    9.0 for squeeze-backports' postgres.
   max_connections:
     Maximum number of connection allowed to the server.
   shared_buffers
@@ -116,6 +117,35 @@ define postgres::server(
         }
       }
     }
+    '9.0': {
+      case $operatingsystem {
+        debian: {
+          case $lsbdistcodename {
+            lenny: {
+              fail 'PostgreSQL 9.0 is unavailable on Debian lenny'
+            }
+            squeeze: {
+              # Install squeeze-backports Postgres
+              include apt::backports
+              os::backported_package{
+                ['postgresql', 'postgresql-9.0', 'libpq5', 'postgresql-client-9.0', 'postgresql-common', 'postgresql-client-common']:
+                  ensure        => installed;
+              }
+              service {
+                "postgresql":
+                  require       => Package['postgresql'],
+                  ensure        => running,
+                  enable        => true,
+                  hasstatus     => true;
+              }
+            }
+            default: {
+              fail "PostgreSQL 9.0 is unavailable on Debian '${lsbdistcodename}'"
+            }
+          }
+        }
+      }
+    }
     default: {
       fail "Unknown value '$version' for version parameter."
     }
@@ -170,12 +200,19 @@ define postgres::server(
   # Configure it.
   file {
     "/etc/postgresql/${version}/main/postgresql.conf":
+      owner	=> 'postgres';
+  }
+
+  common::concatfilepart {
+    "postgresql-conf-000":
       require	=> Package['postgresql'],
+      notify	=> Service['postgresql'],
+      file      => "/etc/postgresql/${version}/main/postgresql.conf",
+      manage    => true,
       content	=> $version ? {
         '8.3'	=> template('postgresql/postgresql.conf.erb'),
-        '8.4'	=> template('postgresql/postgresql.conf.8.4.erb')
-      },
-      owner	=> 'postgres',
-      notify	=> Service['postgresql'];
+        '8.4'	=> template('postgresql/postgresql.conf.8.4.erb'),
+        '9.0'	=> template('postgresql/postgresql.conf.9.0.erb')
+      };
   }
 }

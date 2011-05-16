@@ -16,4 +16,3 @@
 # Modified by Gilbert Roulot, gilbert.roulot@tech-angels.fr
 
 import "definitions/*.pp"
-
