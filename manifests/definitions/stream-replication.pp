@@ -31,9 +31,16 @@ define postgres::stream-replication::slave(
 $version='9.0',
 $master_host,
 $master_port='5432',
+$recovery_conf_path=false,
 $restore_command=false,
 $wal_directory='/var/lib/postgresql-wal'
 ) {
+  if $recovery_conf_path {
+    $real_recovery_conf_path=$recovery_conf_path
+  } else {
+    $real_recovery_conf_path='/var/lib/postgresql/9.0/main/recovery.conf'
+  }
+
   if $restore_command {
     $real_restore_command=$restore_command
   } else {
@@ -53,7 +60,7 @@ $wal_directory='/var/lib/postgresql-wal'
 
   # recovery.conf file
   file {
-    "/var/lib/postgresql/9.0/main/recovery.conf":
+    $real_recovery_conf_path:
       owner	=> 'postgres',
       group	=> 'postgres',
       mode	=> 0400,
