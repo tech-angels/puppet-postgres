@@ -16,6 +16,15 @@ $wal_directory='/var/lib/postgresql-wal'
       ensure	=> directory;
   }
 
+  # purge WAL directory of old files automaticaly
+  cron {
+    'purge WAL directory of old files':
+      command	=> "/usr/bin/find $wal_directory -type f -and -mtime +2 -exec rm -f {} \\;",
+      user	=> 'postgres',
+      minute	=> 15,
+      hour	=> 6;
+  }
+
   # PostgreSQL master SR Configuration
   common::concatfilepart {
     "postgresql-conf-010-sr-master":
