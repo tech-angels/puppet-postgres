@@ -1,0 +1,108 @@
+#!/bin/sh
+
+# Managed by Puppet
+
+# This command make a PostgreSQL backup using filesystem copies and WAL archives
+
+# Arguments:
+# $1: version
+# $2: cluster name
+# $3: Wal archive dir
+# $4: backup directory
+
+if [ $# -ne 4 ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "Usage: $0 [version] [cluster name] [WAL archive directory] [backup directory]"
+        exit 1
+fi
+
+VERSION=$1
+CLUSTERNAME=$2
+WALDIR=$3
+BACKUPDIR=$4
+
+if [ ! -d $BACKUPDIR ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "Backup directory $BACKUPDIR doesn't exist!"
+        exit 1
+fi
+
+if [ ! -d $WALDIR ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "WAL archive directory $WALDIR doesn't exist!"
+        exit 1
+fi
+
+# Start backup
+
+psql -c "SELECT pg_start_backup('');"
+
+if [ $? -ne 0 ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "Couldn't backup PostgreSQL!"
+        exit 1
+fi
+
+stop_backup() {
+        # Stop backup
+        psql -c "SELECT pg_stop_backup()"
+}
+
+trap stop_backup SIGINT
+
+# Copy files
+DATADIR=/var/lib/postgresql/$VERSION/$CLUSTERNAME
+
+if [ ! -d $DATADIR ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "Data directory $DATADIR doesn't exist!"
+        stop_backup
+        exit 1
+fi
+
+/usr/bin/rsync -lr --exclude pg_xlog $DATADIR $BACKUPDIR
+
+if [ $? -ne 0 ]
+        then
+        logger -t backup_postgres_wal: -s -p user.error "Couldn't copy PostgreSQL data dir: $DATADIR"
+        stop_backup
+        exit 1
+fi
+
+# Stop Backup
+stop_backup
+
+# Copy necessary WAL archives for a consistent backup
+
+# read infos from backup file
+BACKUPINFOFILE=`ls -t $WALDIR/*.backup|head -n 1`
+
+STARTFILE=`grep "START WAL LOCATION" $BACKUPINFOFILE|sed 's/.* \([0-9A-Z]\+\))/\1/'`
+STOPFILE=`grep "STOP WAL LOCATION" $BACKUPINFOFILE|sed 's/.* \([0-9A-Z]\+\))/\1/'`
+
+# Copy wal files
+COPYING=0
+for f in `ls -t $WALDIR`
+        do
+        if [ "$f" == "$STARTFILE" ]
+                then
+                COPYING=1
+        fi
+        if [ $COPYING -eq 1 ]
+                then
+                /bin/cp $WALDIR/$f $BACKUPDIR
+                if [ $? -ne 0 ]
+                        then
+                        logger -t backup_postgres_wal: -s -p user.error "Couldn't copy WAL archive $f !"
+                        exit 1
+                fi
+        fi
+        if [ "$f" == "$STOPFILE" ]
+                then
+                break
+        fi
+done
+
+# Backup successful.
+logger -t backup_postgres_wal: -p user.info "Backup succesfull"
+exit 0

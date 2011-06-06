@@ -1,0 +1,5 @@
+# Continuous archiving
+
+# Enable WAL archiving
+archive_mode    = on
+archive_command = '/usr/bin/test ! -f <%= wal_directory %>/%f && /bin/cp %p <%= wal_directory %>/%f'

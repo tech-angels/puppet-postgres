@@ -8,21 +8,25 @@ $version='9.0',
 $wal_directory='/var/lib/postgresql-wal'
 ) {
   # Create wal directory
-  file {
-    $wal_directory:
-      owner	=> 'postgres',
-      group	=> 'postgres',
-      mode	=> 0700,
-      ensure	=> directory;
+  if (!defined(File[$wal_directory])) {
+    file {
+      $wal_directory:
+        owner   => 'postgres',
+        group   => 'postgres',
+        mode    => 0700,
+        ensure  => directory;
+    }
   }
 
   # purge WAL directory of old files automaticaly
-  cron {
-    'purge WAL directory of old files':
-      command	=> "/usr/bin/find $wal_directory -type f -and -mtime +2 -exec rm -f {} \\;",
-      user	=> 'postgres',
-      minute	=> 15,
-      hour	=> 6;
+  if (!defined(Cron["Purge WAL directory $wal_directory"])) {
+    cron {
+      "Purge WAL directory $wal_directory":
+        command => "/usr/bin/find $wal_directory -type f -and -mtime +2 -exec rm -f {} \\;",
+        user    => 'postgres',
+        minute  => 15,
+        hour    => 6;
+    }
   }
 
   # PostgreSQL master SR Configuration
