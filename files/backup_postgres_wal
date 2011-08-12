@@ -12,7 +12,7 @@
 
 if [ $# -ne 4 ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "Usage: $0 [version] [cluster name] [WAL archive directory] [backup directory]"
+        logger -t backup_postgres_wal -s -p user.error "Usage: $0 [version] [cluster name] [WAL archive directory] [backup directory]"
         exit 1
 fi
 
@@ -23,13 +23,13 @@ BACKUPDIR=$4
 
 if [ ! -d $BACKUPDIR ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "Backup directory $BACKUPDIR doesn't exist!"
+        logger -t backup_postgres_wal -s -p user.error "Backup directory $BACKUPDIR doesn't exist!"
         exit 1
 fi
 
 if [ ! -d $WALDIR ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "WAL archive directory $WALDIR doesn't exist!"
+        logger -t backup_postgres_wal -s -p user.error "WAL archive directory $WALDIR doesn't exist!"
         exit 1
 fi
 
@@ -39,7 +39,7 @@ psql -c "SELECT pg_start_backup('');"
 
 if [ $? -ne 0 ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "Couldn't backup PostgreSQL!"
+        logger -t backup_postgres_wal -s -p user.error "Couldn't backup PostgreSQL!"
         exit 1
 fi
 
@@ -55,7 +55,7 @@ DATADIR=/var/lib/postgresql/$VERSION/$CLUSTERNAME
 
 if [ ! -d $DATADIR ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "Data directory $DATADIR doesn't exist!"
+        logger -t backup_postgres_wal -s -p user.error "Data directory $DATADIR doesn't exist!"
         stop_backup
         exit 1
 fi
@@ -64,7 +64,7 @@ fi
 
 if [ $? -ne 0 ]
         then
-        logger -t backup_postgres_wal: -s -p user.error "Couldn't copy PostgreSQL data dir: $DATADIR"
+        logger -t backup_postgres_wal -s -p user.error "Couldn't copy PostgreSQL data dir: $DATADIR"
         stop_backup
         exit 1
 fi
@@ -93,7 +93,7 @@ for f in `ls -t $WALDIR`
                 /bin/cp $WALDIR/$f $BACKUPDIR
                 if [ $? -ne 0 ]
                         then
-                        logger -t backup_postgres_wal: -s -p user.error "Couldn't copy WAL archive $f !"
+                        logger -t backup_postgres_wal -s -p user.error "Couldn't copy WAL archive $f !"
                         exit 1
                 fi
         fi
@@ -104,5 +104,5 @@ for f in `ls -t $WALDIR`
 done
 
 # Backup successful.
-logger -t backup_postgres_wal: -p user.info "Backup succesfull"
+logger -t backup_postgres_wal -p user.info "Backup succesfull"
 exit 0
