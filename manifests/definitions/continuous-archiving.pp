@@ -24,17 +24,6 @@ $backup_directory='/var/backups/postgresql-wal-backup'
     }
   }
 
-  # purge WAL directory of old files automaticaly
-  if (!defined(Cron["Purge WAL directory $wal_directory"])) {
-    cron {
-      "Purge WAL directory $wal_directory":
-        command	=> "/usr/bin/find $wal_directory -type f -and -mtime +2 -exec rm -f {} \\;",
-        user	=> 'postgres',
-        minute	=> 15,
-        hour	=> 6;
-    }
-  }
-
   # Create backup dir
   file {
     $backup_directory:

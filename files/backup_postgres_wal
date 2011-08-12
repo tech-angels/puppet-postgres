@@ -33,6 +33,10 @@ if [ ! -d $WALDIR ]
         exit 1
 fi
 
+# Remove old WALs
+
+rm -f ${BACKUPDIR}/????????????????????????
+
 # Start backup
 
 psql -c "SELECT pg_start_backup('');"
@@ -60,7 +64,7 @@ if [ ! -d $DATADIR ]
         exit 1
 fi
 
-/usr/bin/rsync -lr --exclude pg_xlog $DATADIR $BACKUPDIR
+/usr/bin/rsync --delete -lr --exclude pg_xlog $DATADIR $BACKUPDIR
 
 if [ $? -ne 0 ]
         then
