@@ -5,6 +5,11 @@ define: postgres::continuous-archiving
 This resource sets up continuous archiving as descrived in
 http://www.postgresql.org/docs/8.3/static/continuous-archiving.html
 
+Parameters:
+- version: PostgreSQL version
+- wal_directory: directory where to copy the WAL to.
+- backup_directory: directory where to put backups
+
 */
 define postgres::continuous-archiving(
 $version='9.0',
