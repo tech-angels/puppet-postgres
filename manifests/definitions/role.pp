@@ -31,6 +31,9 @@ Parameters:
   $createdb:
     true to allow role to create databases.
     false to not allow.
+  $superuser:
+    true to make the role superuser
+    false otherwise.
   $login:
     true to allow role to login.
     false to not allow.
@@ -38,6 +41,7 @@ Parameters:
 Actions:
   * create or remove role
   * allow or disallow createdb or login
+  * give or remove superuser status
 
 Sample usage:
 postgres::role {
@@ -50,6 +54,7 @@ define postgres::role(
   $ensure,
   $password=false,
   $createdb=false,
+  $superuser=false,
   $login=false
 ) {
     $passtext = $password ? {
@@ -107,6 +112,28 @@ define postgres::role(
               }
               default: {
                 fail "Invalid 'createdb' value '$createdb' for postgres::role"
+              }
+            }
+            # Give or remove superuser privilege
+            case $login {
+              true: {
+                exec { "Give superuser to $name postgres role":
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH SUPERUSER\"",
+                  user		=> "postgres",
+                  unless	=> "/usr/bin/psql -Atc \"SELECT rolsuper FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                }
+              }
+              false: {
+                 exec { "Remove superuser from $name postgres role":
+                  require	=> Package['postgresql'],
+                  command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOSUPERUSER\"",
+                  user		=> "postgres",
+                  onlyif	=> "/usr/bin/psql -Atc \"SELECT rolsuper FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
+                }
+              }
+              default: {
+                fail "Invalid 'superuser' value '$superuser' for postgres::role"
               }
             }
  
