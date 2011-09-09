@@ -51,7 +51,7 @@ postgres::role {
 }
 */
 define postgres::role(
-  $ensure,
+  $ensure='present',
   $password=false,
   $createdb=false,
   $superuser=false,
