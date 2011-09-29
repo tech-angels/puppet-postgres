@@ -13,7 +13,7 @@ $wal_directory='/var/lib/postgresql-wal'
       $wal_directory:
         owner   => 'postgres',
         group   => 'postgres',
-        mode    => 0755,
+        mode    => 0700,
         ensure  => directory;
     }
   }
