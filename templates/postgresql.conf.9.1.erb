@@ -1,0 +1,62 @@
+# Managed by Puppet
+
+#------------------------------------------------------------------------------
+# FILE LOCATIONS
+#------------------------------------------------------------------------------
+
+data_directory = '/var/lib/postgresql/9.1/main'		# use data in another directory
+					# (change requires restart)
+hba_file = '/etc/postgresql/9.1/main/pg_hba.conf'	# host-based authentication file
+					# (change requires restart)
+ident_file = '/etc/postgresql/9.1/main/pg_ident.conf'	# ident configuration file
+					# (change requires restart)
+
+# If external_pid_file is not explicitly set, no extra PID file is written.
+external_pid_file = '/var/run/postgresql/9.1-main.pid'		# write an extra PID file
+					# (change requires restart)
+
+
+#------------------------------------------------------------------------------
+# CONNECTIONS AND AUTHENTICATION
+#------------------------------------------------------------------------------
+
+# - Connection Settings -
+
+listen_addresses = <%= listen_addresses.collect{|address| "'" + address + "'"}.join(',') %>
+port = <%= port %>
+max_connections = <%= max_connections %>
+unix_socket_directory = '/var/run/postgresql'
+
+# - Security and Authentication -
+
+ssl = true				# (change requires restart)
+
+#------------------------------------------------------------------------------
+# RESOURCE USAGE (except WAL)
+#------------------------------------------------------------------------------
+
+# - Memory -
+
+shared_buffers = <%= shared_buffers %>MB
+effective_cache_size = <%= effective_cache_size %>MB
+
+#------------------------------------------------------------------------------
+# ERROR REPORTING AND LOGGING
+#------------------------------------------------------------------------------
+
+log_line_prefix = '%t '
+
+#------------------------------------------------------------------------------
+# CLIENT CONNECTION DEFAULTS
+#------------------------------------------------------------------------------
+
+datestyle = 'iso, dmy'
+lc_messages = 'en_GB'			# locale for system error message
+					# strings
+lc_monetary = 'en_GB'			# locale for monetary formatting
+lc_numeric = 'en_GB'			# locale for number formatting
+lc_time = 'en_GB'				# locale for time formatting
+
+# default configuration for text search
+default_text_search_config = 'pg_catalog.english'
+
