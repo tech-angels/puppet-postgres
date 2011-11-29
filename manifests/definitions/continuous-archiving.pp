@@ -12,7 +12,7 @@ Parameters:
 
 */
 define postgres::continuous-archiving(
-$version='9.0',
+$version='9.1',
 $wal_directory='/var/lib/postgresql-wal',
 $backup_directory='/var/backups/postgresql-wal-backup'
 ) {

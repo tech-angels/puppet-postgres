@@ -12,7 +12,7 @@ Parameters:
   version:
     8.3 for lenny's postgres.
     8.4 for lenny-backports' postgres or squeeze's postres.
-    9.0 for squeeze-backports' postgres.
+    9.1 for squeeze-backports' postgres.
   max_connections:
     Maximum number of connection allowed to the server.
   shared_buffers
@@ -117,18 +117,18 @@ define postgres::server(
         }
       }
     }
-    '9.0': {
+    '9.1': {
       case $operatingsystem {
         debian: {
           case $lsbdistcodename {
             lenny: {
-              fail 'PostgreSQL 9.0 is unavailable on Debian lenny'
+              fail 'PostgreSQL 9.1 is unavailable on Debian lenny'
             }
             squeeze: {
               # Install squeeze-backports Postgres
               include apt::backports
               os::backported_package{
-                ['postgresql', 'postgresql-9.0', 'libpq5', 'postgresql-client-9.0', 'postgresql-common', 'postgresql-client-common']:
+                ['postgresql', 'postgresql-9.1', 'libpq5', 'postgresql-client-9.1', 'postgresql-common', 'postgresql-client-common']:
                   ensure        => installed;
               }
               service {
@@ -140,7 +140,7 @@ define postgres::server(
               }
             }
             default: {
-              fail "PostgreSQL 9.0 is unavailable on Debian '${lsbdistcodename}'"
+              fail "PostgreSQL 9.1 is unavailable on Debian '${lsbdistcodename}'"
             }
           }
         }
@@ -212,7 +212,7 @@ define postgres::server(
       content	=> $version ? {
         '8.3'	=> template('postgresql/postgresql.conf.erb'),
         '8.4'	=> template('postgresql/postgresql.conf.8.4.erb'),
-        '9.0'	=> template('postgresql/postgresql.conf.9.0.erb')
+        '9.1'	=> template('postgresql/postgresql.conf.9.1.erb')
       };
   }
 }
