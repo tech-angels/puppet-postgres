@@ -4,7 +4,7 @@ define: postgres::stream-replication::master
 
 */
 define postgres::stream-replication::master(
-$version='9.0',
+$version='9.1',
 $wal_directory='/var/lib/postgresql-wal'
 ) {
   # Create wal directory
@@ -41,7 +41,7 @@ $wal_directory='/var/lib/postgresql-wal'
 }
 
 define postgres::stream-replication::slave(
-$version='9.0',
+$version='9.1',
 $master_host,
 $master_port='5432',
 $recovery_conf_path=false,
@@ -51,7 +51,7 @@ $wal_directory='/var/lib/postgresql-wal'
   if $recovery_conf_path {
     $real_recovery_conf_path=$recovery_conf_path
   } else {
-    $real_recovery_conf_path='/var/lib/postgresql/9.0/main/recovery.conf'
+    $real_recovery_conf_path='/var/lib/postgresql/9.1/main/recovery.conf'
   }
 
   if $restore_command {
@@ -61,6 +61,15 @@ $wal_directory='/var/lib/postgresql-wal'
     $real_restore_command="/usr/bin/rsync postgres@${master_host}:${wal_directory}/%f \"%p\""
   }  
 
+  # Install a script that initialises a slave from the master's data
+  file {
+    '/usr/local/sbin/init_stream_replication':
+      owner     => 'postgres',
+      group     => 'postgres',
+      mode      => 0500,
+      source    => 'puppet:///postgresql/init_stream_replication';
+  }
+ 
   # PostgreSQL slave SR Configuration
   common::concatfilepart {
     "postgresql-conf-010-sr-slave":

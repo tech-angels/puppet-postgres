@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# This command initialise stream replication with a master. It does this:
+# - stop this slave
+# - start backup on the master
+# - rsync data files from master to this slave
+# - stop backup on the master
+# - Start this slave
+
+# Parameters:
+#$1 version (ex: 9.1)
+#$2 cluster name (ex: main)
+
+
+if [ "$#" != "2" ]
+	then
+	echo "Usage: $0 [version] [cluster name]"
+	exit 1
+fi
+
+
+
+VERSION=$1
+CLUSTERNAME=$2
+PGDATA=/var/lib/postgresql/${VERSION}/${CLUSTERNAME}
+RECOVERYCONF=${PGDATA}/recovery.conf
+
+# Read master info from recovery.conf
+MASTERLINE=`/bin/grep primary_conninfo ${RECOVERYCONF}`
+
+
+if [ $? -ne 0 ]
+	then
+	echo "Cannot read recovery.conf!"
+	exit 1
+fi
+
+MASTER=`echo $MASTERLINE|sed 's/.*host=//;s/ port.*//'`
+
+if [ "$USER" != "postgres"  ]
+	then
+	echo "Run this as the postgres user."
+	exit 1
+fi
+
+if [ ! -d "/var/lib/postgresql/${VERSION}" ]
+	then
+	echo "/var/lib/postgresql/${VERSIO} doesnt exist!"
+	exit 1
+fi
+
+# Stop this slave
+/etc/init.d/postgresql stop
+
+
+stop_backup_on_master() {
+	# Stop backup on master
+	ssh postgres@${MASTER} psql -c "\"SELECT pg_stop_backup()\""
+}
+
+trap stop_backup_on_master SIGINT
+
+# start backup on master
+ssh postgres@${MASTER} psql -c "\"SELECT pg_start_backup('label', true)\""
+
+# Copy data
+rsync -a postgres@${MASTER}:/var/lib/postgresql/$VERSION /var/lib/postgresql/ --exclude postmaster.pid --exclude server.key --exclude server.crt
+
+# Stop backup
+stop_backup_on_master
+
+# Start this slave
+/etc/init.d/postgresql start
