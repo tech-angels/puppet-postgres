@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Managed by Puppet
+
+# Do a WAL backup if the server is currently the master
+
+/usr/bin/psql -qtc "select pg_is_in_recovery()"|grep f > /dev/null
+
+if [ $? -eq 0 ]
+	then
+	# Server is master, backup it
+	/usr/local/sbin/backup_postgres_wal <%= version %> <%= cluster %> /var/lib/postgresql-wal /var/backups/postgresql-wal-backup
+else
+	# Do nothing
+	exit 0
+fi
