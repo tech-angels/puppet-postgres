@@ -67,7 +67,7 @@ $wal_directory='/var/lib/postgresql-wal'
       owner     => 'postgres',
       group     => 'postgres',
       mode      => 0500,
-      source    => 'puppet:///postgresql/init_stream_replication';
+      source    => 'puppet:///modules/postgresql/init_stream_replication';
   }
  
   # PostgreSQL slave SR Configuration

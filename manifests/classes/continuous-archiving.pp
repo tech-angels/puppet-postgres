@@ -10,6 +10,6 @@ class postgres::continuous-archiving::common {
       owner	=> 'postgres',
       group	=> 'postgres',
       mode	=> 0700,
-      source	=> 'puppet:///postgresql/backup_postgres_wal';
+      source	=> 'puppet:///modules/postgresql/backup_postgres_wal';
   }
 }
