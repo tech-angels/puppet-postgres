@@ -26,14 +26,14 @@ define postgres::database($ensure, $owner = false) {
                 require	=> Package['postgresql'],
                 command	=> "/usr/bin/createdb $ownerstring $name",
                 user	=> "postgres",
-                unless	=> "/usr/bin/psql -l | grep '$name  *|'"
+                unless	=> "/usr/bin/psql -l $name"
             }
         }
         absent:  {
             exec { "Remove $name postgres db":
                 require	=> Package['postgresql'],
                 command => "/usr/bin/drop $name",
-                onlyif => "/usr/bin/psql -l | grep '$name  *|'",
+                onlyif => "/usr/bin/psql -l $name",
                 user => "postgres"
             }
         }
