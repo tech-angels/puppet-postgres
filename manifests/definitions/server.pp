@@ -128,12 +128,18 @@ define postgres::server(
               # Install squeeze-backports Postgres
               include apt::backports
               os::backported_package{
-                ['postgresql', 'postgresql-9.1', 'libpq5', 'postgresql-client-9.1', 'postgresql-common', 'postgresql-client-common']:
+                ['libpq5', 'postgresql-client-9.1', 'postgresql-common', 'postgresql-client-common']:
                   ensure        => installed;
               }
+              os::backported_package{
+                'postgresql-9.1':
+                  alias		=> 'postgresql',
+                  ensure        => installed;
+              }
+
               service {
                 "postgresql":
-                  require       => Package['postgresql'],
+                  require       => Package['postgresql-9.1'],
                   ensure        => running,
                   enable        => true,
                   hasstatus     => true;
