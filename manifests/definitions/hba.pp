@@ -89,6 +89,8 @@ Parameters:
     Username to allow.
   $version:
     Version of postgresql to install into. (exemple: '8.3', '8.4' ...)
+  $ssl:
+    Optional. "ssl" or "nossl".
   $auth_method:
     Authentication method.
   $auth_options:
@@ -111,6 +113,7 @@ define postgres::hba::host(
   $database,
   $user,
   $version='8.3',
+  $ssl='',
   $ips,
   $auth_method,
   $auth_options=[]
@@ -119,6 +122,13 @@ define postgres::hba::host(
      postgres::hba::common {
        $version:
          version	=> $version
+     }
+   }
+
+   case $ssl {
+     'ssl','nossl','': {}
+     default: {
+       fail("ssl parameter must be 'nossl', 'ssl' or empty")
      }
    }
  

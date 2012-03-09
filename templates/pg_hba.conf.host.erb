@@ -7,7 +7,7 @@ if ips.class == Array then
       i = i + "/32"
     end
 -%>
-host	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
+host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
 <% 
   end
 else
@@ -17,5 +17,5 @@ else
     i = i + "/32"
   end
 -%>
-host	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
+host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
 <% end %>
