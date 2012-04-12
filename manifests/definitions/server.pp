@@ -142,7 +142,8 @@ define postgres::server(
                   require       => Package['postgresql-9.1'],
                   ensure        => running,
                   enable        => true,
-                  hasstatus     => true;
+                  hasstatus     => true,
+                  status        => "/etc/init.d/postgresql status|grep '9.1/main' > /dev/null",
               }
             }
             default: {
