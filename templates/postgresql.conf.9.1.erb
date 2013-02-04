@@ -22,7 +22,7 @@ external_pid_file = '/var/run/postgresql/9.1-main.pid'		# write an extra PID fil
 
 # - Connection Settings -
 
-listen_addresses = "<%= listen_addresses.join(',') %>"
+listen_addresses = '<%= listen_addresses.join(',') %>'
 port = <%= port %>
 max_connections = <%= max_connections %>
 unix_socket_directory = '/var/run/postgresql'
