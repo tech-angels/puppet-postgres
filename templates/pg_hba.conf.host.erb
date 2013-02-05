@@ -3,8 +3,13 @@
 if ips.class == Array then
   for i in ips do 
     if not i =~ /\/\d{1,2}/ then
-      # Append /32 to single IP
-      i = i + "/32"
+      if i =~ /:/ then
+        # Append /128 to single IPv6
+        i = i + "/128"
+      else
+        # Append /32 to single IPv4
+        i = i + "/32"
+      end
     end
 -%>
 host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
@@ -13,8 +18,13 @@ host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_
 else
   i = ips
   if not i =~ /\/\d{1,2}/ then
-    # Append /32 to single IP
-    i = i + "/32"
+    if i =~ /:/ then
+      # Append /128 to single IPv6
+      i = i + "/128"
+    else
+      # Append /32 to single IPv4
+      i = i + "/32"
+    end
   end
 -%>
 host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
