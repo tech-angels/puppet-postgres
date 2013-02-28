@@ -14,7 +14,12 @@
 
 # Modified by Gilbert Roulot, gilbert.roulot@tech-angels.fr
 
-define postgres::database($ensure, $owner = false) {
+define postgres::database(
+  $ensure, 
+  $owner = false,
+  $encoding = 'SQL_ASCII',
+  $template = 'template1'
+) {
     $ownerstring = $owner ? {
         false => "",
         default => "-O $owner"
@@ -24,7 +29,7 @@ define postgres::database($ensure, $owner = false) {
         present: {
             exec { "Create $name postgres db":
                 require	=> Package['postgresql'],
-                command	=> "/usr/bin/createdb $ownerstring $name",
+                command	=> "/usr/bin/createdb $ownerstring -E $encoding -T $template $name",
                 user	=> "postgres",
                 unless	=> "/usr/bin/psql -l $name"
             }
