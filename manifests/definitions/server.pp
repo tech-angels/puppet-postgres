@@ -13,6 +13,7 @@ Parameters:
     8.3 for lenny's postgres.
     8.4 for lenny-backports' postgres or squeeze's postres.
     9.1 for squeeze-backports' postgres.
+    9.1 for wheezy's postgres.
   max_connections:
     Maximum number of connection allowed to the server.
   shared_buffers
@@ -146,6 +147,23 @@ define postgres::server(
                   status        => "/etc/init.d/postgresql status|grep '9.1/main' > /dev/null",
               }
             }
+            wheezy: {
+              # Install Postgres
+              package {
+                'postgresql':
+                  ensure        => installed;
+              }
+
+              service {
+                "postgresql":
+                  require       => Package['postgresql'],
+                  ensure        => running,
+                  enable        => true,
+                  hasstatus     => true,
+                  status        => "/etc/init.d/postgresql status|grep '9.1/main' > /dev/null",
+              }
+            }
+ 
             default: {
               fail "PostgreSQL 9.1 is unavailable on Debian '${lsbdistcodename}'"
             }
