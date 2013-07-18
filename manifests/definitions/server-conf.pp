@@ -12,7 +12,6 @@ $source=undef
 ) {
   common::concatfilepart {
     "postgresql-conf-010-${name}":
-      require	=> Package['postgresql'],
       notify	=> Service['postgresql'],
       file      => "/etc/postgresql/${version}/main/postgresql.conf",
       manage    => true,

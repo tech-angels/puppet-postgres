@@ -65,7 +65,6 @@ define postgres::role(
         present: {
             # The createuser command always prompts for the password.
             exec { "Create $name postgres role":
-                require	=> Package['postgresql'],
                 command	=> "/usr/bin/psql -c \"CREATE ROLE $name $passtext\"",
                 user	=> "postgres",
                 unless	=> "/usr/bin/psql -c '\\du' | grep '^  *$name  *|'"
@@ -74,7 +73,6 @@ define postgres::role(
             case $createdb {
               true: {
                 exec { "Give createdb to $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH CREATEDB\"",
                   user		=> "postgres",
                   unless	=> "/usr/bin/psql -Atc \"SELECT rolcreatedb FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -82,7 +80,6 @@ define postgres::role(
               }
               false: {
                  exec { "Remove createdb from $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOCREATEDB\"",
                   user		=> "postgres",
                   onlyif	=> "/usr/bin/psql -Atc \"SELECT rolcreatedb FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -96,7 +93,6 @@ define postgres::role(
             case $login {
               true: {
                 exec { "Give login to $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH LOGIN\"",
                   user		=> "postgres",
                   unless	=> "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -104,7 +100,6 @@ define postgres::role(
               }
               false: {
                  exec { "Remove login from $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOLOGIN\"",
                   user		=> "postgres",
                   onlyif	=> "/usr/bin/psql -Atc \"SELECT rolcanlogin FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -118,7 +113,6 @@ define postgres::role(
             case $login {
               true: {
                 exec { "Give superuser to $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH SUPERUSER\"",
                   user		=> "postgres",
                   unless	=> "/usr/bin/psql -Atc \"SELECT rolsuper FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -126,7 +120,6 @@ define postgres::role(
               }
               false: {
                  exec { "Remove superuser from $name postgres role":
-                  require	=> Package['postgresql'],
                   command	=> "/usr/bin/psql -c \"ALTER ROLE $name WITH NOSUPERUSER\"",
                   user		=> "postgres",
                   onlyif	=> "/usr/bin/psql -Atc \"SELECT rolsuper FROM pg_roles WHERE rolname='${name}'\" |grep ^t\$";
@@ -140,7 +133,6 @@ define postgres::role(
         }
         absent:  {
             exec { "Remove $name postgres role":
-                require	=> Package['postgresql'],
                 command	=> "/usr/bin/dropeuser $name",
                 user	=> "postgres",
                 onlyif	=> "/usr/bin/psql -c '\\du' | grep '$name  *|'"

@@ -42,89 +42,10 @@ define postgres::server(
 ) {
   # Install server.
   case $version {
-    '8.3': {
-      case $operatingsystem {
-        debian: {
-          case $lsbdistcodename {
-            lenny: {
-              # Install lenny package
-              package {
-               'postgresql':
-                 ensure => installed;
-              }
-              service {
-                "postgresql-8.3":
-                  require	=> Package['postgresql'],
-                  alias		=> 'postgres',
-                  ensure	=> running,
-                  enable	=> true,
-                  hasstatus	=> true;
-              }
-            }
-
-            default: {
-              fail "PostgreSQL 8.3 is unavailable on Debian '${lsbdistcodename}'"
-            }
-          }
-        }
- 
-        default: {
-          fail "Unsupported OS ${operatingsystem} in 'postgres' module"
-        }
-      }
-    }
-    '8.4': {
-      case $operatingsystem {
-        debian: {
-          case $lsbdistcodename {
-            lenny: {
-              # Install lenny-backports Postgres
-              os::backported_package{
-                ['postgresql', 'postgresql-8.4', 'libpq5', 'postgresql-client-8.4', 'postgresql-common', 'postgresql-client-common']:
-                  ensure	=> installed;
-              }
-              service {
-                "postgresql":
-                  require	=> Package['postgresql'],
-                  ensure	=> running,
-                  enable	=> true,
-                  hasstatus	=> true;
-              }
-            }
-            squeeze: {
-              # Install squeeze package
-              package {
-               'postgresql':
-                 ensure => installed;
-              }
-              service {
-                "postgresql":
-                  require	=> Package['postgresql'],
-                  alias		=> 'postgres',
-                  ensure	=> running,
-                  enable	=> true,
-                  hasstatus	=> true;
-              }
-            }
-
-            default: {
-              fail "PostgreSQL 8.4 is unavailable on Debian '${lsbdistcodename}'"
-            }
-          }
-        }
-
-        default: {
-          fail "Unsupported OS ${operatingsystem} in 'postgres' module"
-        }
-      }
-    }
     '9.1': {
       case $operatingsystem {
         debian: {
           case $lsbdistcodename {
-            lenny: {
-              fail 'PostgreSQL 9.1 is unavailable on Debian lenny'
-            }
             squeeze: {
               # Install squeeze-backports Postgres
               include apt::backports
@@ -230,7 +151,6 @@ define postgres::server(
 
   common::concatfilepart {
     "postgresql-conf-000":
-      require	=> Package['postgresql'],
       notify	=> Service['postgresql'],
       file      => "/etc/postgresql/${version}/main/postgresql.conf",
       manage    => true,

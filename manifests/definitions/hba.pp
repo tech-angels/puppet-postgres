@@ -64,7 +64,6 @@ define postgres::hba::local(
   
    common::concatfilepart {
     $name:
-      require	=> Package['postgresql'],
       file	=> "/etc/postgresql/${version}/main/pg_hba.conf",
       content	=> template('postgresql/pg_hba.conf.local.erb'),
       manage	=> true,
@@ -134,7 +133,6 @@ define postgres::hba::host(
  
    common::concatfilepart {
     $name:
-      require	=> Package['postgresql'],
       file	=> "/etc/postgresql/${version}/main/pg_hba.conf",
       content	=> template('postgresql/pg_hba.conf.host.erb'),
       manage	=> true,

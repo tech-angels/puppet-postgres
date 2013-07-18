@@ -28,7 +28,6 @@ define postgres::database(
     case $ensure {
         present: {
             exec { "Create $name postgres db":
-                require	=> Package['postgresql'],
                 command	=> "/usr/bin/createdb $ownerstring -E $encoding -T $template $name",
                 user	=> "postgres",
                 unless	=> "/usr/bin/psql -l $name"
@@ -36,7 +35,6 @@ define postgres::database(
         }
         absent:  {
             exec { "Remove $name postgres db":
-                require	=> Package['postgresql'],
                 command => "/usr/bin/drop $name",
                 onlyif => "/usr/bin/psql -l $name",
                 user => "postgres"

@@ -41,7 +41,6 @@ $backup_directory='/var/backups/postgresql-wal-backup'
   # PostgreSQL continuous archiving configuration
   common::concatfilepart {
     "postgresql-conf-010-continuous-archiving":
-      require	=> Package['postgresql'],
       notify	=> Service['postgresql'],
       file      => "/etc/postgresql/${version}/main/postgresql.conf",
       manage    => true,

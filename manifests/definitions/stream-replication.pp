@@ -32,7 +32,6 @@ $wal_directory='/var/lib/postgresql-wal'
   # PostgreSQL master SR Configuration
   common::concatfilepart {
     "postgresql-conf-010-sr-master":
-      require	=> Package['postgresql'],
       notify	=> Service['postgresql'],
       file      => "/etc/postgresql/${version}/main/postgresql.conf",
       manage    => true,
@@ -73,7 +72,6 @@ $wal_directory='/var/lib/postgresql-wal'
   # PostgreSQL slave SR Configuration
   common::concatfilepart {
     "postgresql-conf-010-sr-slave":
-      require	=> Package['postgresql'],
       notify	=> Service['postgresql'],
       file      => "/etc/postgresql/${version}/main/postgresql.conf",
       manage    => true,
@@ -86,7 +84,6 @@ $wal_directory='/var/lib/postgresql-wal'
       owner	=> 'postgres',
       group	=> 'postgres',
       mode	=> 0400,
-      require   => Package['postgresql'],
       notify    => Service['postgresql'],
       content	=> template('postgresql/recovery.conf.erb');
   }
