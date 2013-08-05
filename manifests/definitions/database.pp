@@ -17,7 +17,7 @@
 define postgres::database(
   $ensure, 
   $owner = false,
-  $encoding = 'SQL_ASCII',
+  $encoding = 'UTF8',
   $template = 'template1'
 ) {
     $ownerstring = $owner ? {
