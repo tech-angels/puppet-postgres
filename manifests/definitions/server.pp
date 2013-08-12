@@ -35,7 +35,7 @@ postgres::server {
 define postgres::server(
   $listen_addresses=['127.0.0.1'],
   $max_connections=100,
-  $version='8.3',
+  $version='9.1',
   $port=5432,
   $shared_buffers=256,
   $effective_cache_size=256
