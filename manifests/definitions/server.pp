@@ -104,16 +104,6 @@ define postgres::server(
       ensure	=> directory;
   }
 
-  # Create an exported resource job and fileset that the bacula director can realize on his side
-  @@bacula-dir::postgresql_backup {
-    $hostname:
-      client		=> "${hostname}-fd",
-      jobdefs		=> 'DefaultJob',
-      pool		=> 'DefaultPool',
-      bacula_schedule	=> 'DefaultSchedule',
-      ensure		=> present;
-  }
-
   # Add default pb_hba configuration
   postgres::hba::local {
     '001 Database administrative login by UNIX sockets': 
