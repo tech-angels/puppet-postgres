@@ -9,7 +9,7 @@
 if [ $? -eq 0 ]
 	then
 	# Server is master, backup it
-	/usr/local/sbin/backup_postgres_wal <%= version %> <%= cluster %> /var/lib/postgresql-wal /var/backups/postgresql-wal-backup
+	/usr/local/sbin/backup_postgres_wal <%= @version %> <%= @cluster %> /var/lib/postgresql-wal /var/backups/postgresql-wal-backup
 else
 	# Do nothing
 	exit 0

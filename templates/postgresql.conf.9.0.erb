@@ -22,9 +22,9 @@ external_pid_file = '/var/run/postgresql/9.0-main.pid'		# write an extra PID fil
 
 # - Connection Settings -
 
-listen_addresses = '<%= listen_addresses.join(',') %>'
-port = <%= port %>
-max_connections = <%= max_connections %>
+listen_addresses = '<%= @listen_addresses.join(',') %>'
+port = <%= @port %>
+max_connections = <%= @max_connections %>
 unix_socket_directory = '/var/run/postgresql'
 
 # - Security and Authentication -
@@ -37,8 +37,8 @@ ssl = true				# (change requires restart)
 
 # - Memory -
 
-shared_buffers = <%= shared_buffers %>MB
-effective_cache_size = <%= effective_cache_size %>MB
+shared_buffers = <%= @shared_buffers %>MB
+effective_cache_size = <%= @effective_cache_size %>MB
 
 #------------------------------------------------------------------------------
 # ERROR REPORTING AND LOGGING

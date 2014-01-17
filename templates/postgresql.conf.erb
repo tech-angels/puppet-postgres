@@ -14,9 +14,9 @@ external_pid_file = '/var/run/postgresql/8.3-main.pid'
 #------------------------------------------------------------------------------
 
 # - Connection Settings -
-listen_addresses = '<%= listen_addresses.join(',') %>'
-port = <%= port %>
-max_connections = <%= max_connections %>
+listen_addresses = '<%= @listen_addresses.join(',') %>'
+port = <%= @port %>
+max_connections = <%= @max_connections %>
 unix_socket_directory = '/var/run/postgresql'
 
 # - Security and Authentication -
@@ -27,7 +27,7 @@ ssl = true
 #------------------------------------------------------------------------------
 
 # - Memory -
-shared_buffers = <%= shared_buffers %>MB
+shared_buffers = <%= @shared_buffers %>MB
 
 # - Free Space Map -
 max_fsm_pages = 153600

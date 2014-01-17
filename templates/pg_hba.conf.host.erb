@@ -1,7 +1,7 @@
-# <%= name %>
+# <%= @name %>
 <%
-if ips.class == Array then
-  for i in ips do 
+if @ips.class == Array then
+  for i in @ips do 
     if not i =~ /\/\d{1,2}/ then
       if i =~ /:/ then
         # Append /128 to single IPv6
@@ -12,11 +12,11 @@ if ips.class == Array then
       end
     end
 -%>
-host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
+host<%= @ssl %>	<%= @database %>	<%= @user %>	<%= i %>	<%= @auth_method %>	<%= @auth_options.join(',') %>
 <% 
   end
 else
-  i = ips
+  i = @ips
   if not i =~ /\/\d{1,2}/ then
     if i =~ /:/ then
       # Append /128 to single IPv6
@@ -27,5 +27,5 @@ else
     end
   end
 -%>
-host<%= ssl %>	<%= database %>	<%= user %>	<%= i %>	<%= auth_method %>	<%= auth_options.join(',') %>
+host<%= @ssl %>	<%= @database %>	<%= @user %>	<%= i %>	<%= @auth_method %>	<%= @auth_options.join(',') %>
 <% end %>

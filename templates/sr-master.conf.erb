@@ -22,4 +22,4 @@ wal_keep_segments = 32
 # the standby. If wal_keep_segments is a high enough number to retain the WAL
 # segments required for the standby server, this may not be necessary.
 archive_mode    = on
-archive_command = '/usr/bin/test ! -f <%= wal_directory %>/%f && /bin/cp %p <%= wal_directory %>/%f'
+archive_command = '/usr/bin/test ! -f <%= @wal_directory %>/%f && /bin/cp %p <%= @wal_directory %>/%f'
